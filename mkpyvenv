@@ -1,32 +1,52 @@
 #!/bin/bash
-set -e
+set -e -o pipefail
 
-usage() {
-    echo "Usage: $0 <env_name>" 1>&2
-    exit 1
+main() {
+    parse_arguments "${@}"
+
+    VENV_NAME=${1:-env}
+
+    python -m venv "${VENV_NAME}"
+
+    # shellcheck disable=SC1091
+    source "${VENV_NAME}/bin/activate"
+
+    pip install --upgrade pip
+    pip install -e .
 }
 
-while getopts ":h" o; do
-    case "${o}" in
-        h | *)
-            usage
-            ;;
-    esac
-done
-shift $((OPTIND-1))
+parse_arguments() {
+    while getopts "h" o; do
+        case "${o}" in
+            h)
+                usage
+                exit 0
+                ;;
+            \? | *)
+                usage
+                exit 1
+                ;;
+        esac
+    done
 
-if [[ "${#}" -ne 1 ]]; then
-    echo "Illegal number of parameters ${0}: got ${#} but expected exactly 1: ${*}" >&2
-    usage
-    return 2
+    shift $((OPTIND-1))
+
+    if [[ "${#}" -ne 1 ]]; then
+        echo "Illegal number of parameters ${0}: got ${#} but expected exactly 1: ${*}" >&2
+        usage
+        exit 1
+    fi
+}
+
+usage() {
+    cat <<-EOF >&2
+		Usage: ${0##*/} [-h] ENV_NAME
+		Creates a new virtual environment named ENV_NAME and installs the dependencies.
+		
+		-h          display this help and exit
+	EOF
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "${@}"
 fi
-
-VENV_NAME=${1:-venv}
-
-python -m venv "${VENV_NAME}"
-
-# shellcheck disable=SC1091
-source "${VENV_NAME}/bin/activate"
-
-pip install --upgrade pip
-pip install -e .

@@ -1,9 +1,47 @@
 #! /bin/bash
+set -e -o pipefail
 
 TARGET_DIR="${HOME}/bin"
 
 main() {
+    parse_arguments "${@}"
     copy_files
+}
+
+parse_arguments() {
+    while getopts "hf" o; do
+        case "${o}" in
+            f)
+                FORCE_FLAG="force"
+                ;;
+            h)
+                usage
+                exit 0
+                ;;
+            \? | *)
+                usage
+                exit 1
+                ;;
+        esac
+    done
+
+    shift $((OPTIND-1))
+
+    if [[ "${#}" -ne 0 ]]; then
+        echo "Illegal number of parameters ${0}: got ${#} but expected exactly 0: ${*}" >&2
+        usage
+        exit 1
+    fi
+}
+
+usage() {
+    cat <<-EOF >&2
+		Usage: ${0##*/} [-hf]
+		Setup the configuration files by creating symboling links.
+		
+		-h          display this help and exit
+		-f          force mode: this will overwrite existing symbolic links.
+	EOF
 }
 
 copy_files() {
@@ -21,7 +59,7 @@ copy_files() {
 
             if [[ ! -e "${target}" ]]; then
                 echo "-----> Symlinking your new ${target}"
-                ln -s "${PWD}/${name}" "${target}"
+                ln -s ${FORCE_FLAG:+-f} "${PWD}/${name}" "${target}"
             fi
         fi
     fi
@@ -29,5 +67,5 @@ copy_files() {
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
+    main "${@}"
 fi
