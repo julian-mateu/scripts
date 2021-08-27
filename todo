@@ -3,7 +3,7 @@ set -e -o pipefail
 
 main() {
     parse_arguments "${@}"
-    printf "TO-DO:\n-\n\nDone:\n-\n\n" > "$(date "+%Y-%m-%d")".md
+    printf "# TO-DO:\n-\n\n# Done:\n-\n\n" > "$(date "+%Y-%m-%d")".md
 }
 
 parse_arguments() {

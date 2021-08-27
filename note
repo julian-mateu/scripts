@@ -6,7 +6,7 @@ main() {
 
     TITLE="${1}"
     TODAY="$(date "+%Y-%m-%d")"
-    printf "#%s\n\n- **Presenter**: \n- **Date**: %s\n" "${TITLE}" "${TODAY}" > "${TODAY}-${TITLE}.md"
+    printf "# %s\n\n- **Presenter**: \n- **Date**: %s\n" "${TITLE}" "${TODAY}" > "${TODAY}-${TITLE}.md"
 }
 
 parse_arguments() {
