@@ -1,0 +1,46 @@
+#!/bin/bash
+set -e -o pipefail
+
+main() {
+    parse_arguments "${@}"
+
+    TITLE="${1}"
+    TODAY="$(date "+%Y-%m-%d")"
+    printf "#%s\n\n- **Presenter**: \n- **Date**: %s\n" "${TITLE}" "${TODAY}" > "${TODAY}-${TITLE}.md"
+}
+
+parse_arguments() {
+    while getopts "h" o; do
+        case "${o}" in
+            h)
+                usage
+                exit 0
+                ;;
+            \? | *)
+                usage
+                exit 1
+                ;;
+        esac
+    done
+
+    shift $((OPTIND-1))
+
+    if [[ "${#}" -ge 2 ]]; then
+        echo "Illegal number of parameters ${0}: got ${#} but expected at most 1: ${*}" >&2
+        usage
+        exit 1
+    fi
+}
+
+usage() {
+    cat <<-EOF >&2
+		Usage: ${0##*/} [-h]
+		Creates a new TO-DO file with today's date into YYYY-MM-DD.md.
+		
+		-h          display this help and exit
+	EOF
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "${@}"
+fi
