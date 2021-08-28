@@ -3,24 +3,24 @@ set -e -o pipefail
 
 main() {
     parse_arguments "${@}"
-    printf "# TO-DO:\n-\n\n# Done:\n-\n\n" > "$(date "+%Y-%m-%d")".md
+    printf "# TO-DO:\n-\n\n# Done:\n-\n\n" >"$(date "+%Y-%m-%d")".md
 }
 
 parse_arguments() {
     while getopts "h" o; do
         case "${o}" in
-            h)
-                usage
-                exit 0
-                ;;
-            \? | *)
-                usage
-                exit 1
-                ;;
+        h)
+            usage
+            exit 0
+            ;;
+        \? | *)
+            usage
+            exit 1
+            ;;
         esac
     done
 
-    shift $((OPTIND-1))
+    shift $((OPTIND - 1))
 
     if [[ "${#}" -ne 0 ]]; then
         echo "Illegal number of parameters ${0}: got ${#} but expected exactly 0: ${*}" >&2

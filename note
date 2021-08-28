@@ -6,24 +6,24 @@ main() {
 
     TITLE="${1}"
     TODAY="$(date "+%Y-%m-%d")"
-    printf "# %s\n\n- **Presenter**: \n- **Date**: %s\n" "${TITLE}" "${TODAY}" > "${TODAY}-${TITLE}.md"
+    printf "# %s\n\n- **Presenter**: \n- **Date**: %s\n" "${TITLE}" "${TODAY}" >"${TODAY}-${TITLE}.md"
 }
 
 parse_arguments() {
     while getopts "h" o; do
         case "${o}" in
-            h)
-                usage
-                exit 0
-                ;;
-            \? | *)
-                usage
-                exit 1
-                ;;
+        h)
+            usage
+            exit 0
+            ;;
+        \? | *)
+            usage
+            exit 1
+            ;;
         esac
     done
 
-    shift $((OPTIND-1))
+    shift $((OPTIND - 1))
 
     if [[ "${#}" -ge 2 ]]; then
         echo "Illegal number of parameters ${0}: got ${#} but expected at most 1: ${*}" >&2
