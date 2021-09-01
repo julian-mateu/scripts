@@ -1,18 +1,16 @@
 #!/bin/bash
+
+# Note: this script requires hub installed: https://hub.github.com/
 set -e -o pipefail
 
 main() {
     parse_arguments "${@}"
 
-    VENV_NAME=${1:-env}
+    REPOS_API_PATH="${1}"
 
-    python -m venv "${VENV_NAME}"
-
-    # shellcheck disable=SC1091
-    source "${VENV_NAME}/bin/activate"
-
-    pip install --upgrade pip
-    pip install -e .
+    GIT_LFS_SKIP_SMUDGE=1 hub api --paginate --obey-ratelimit -XGET -F per_page=100 "${REPOS_API_PATH}" |
+        jq -r '.[].ssh_url' |
+        xargs -n1 -P20 git clone --depth=1
 }
 
 parse_arguments() {
@@ -40,9 +38,12 @@ parse_arguments() {
 
 usage() {
     cat <<-EOF >&2
-		Usage: ${0##*/} [-h] <ENV_NAME>
+		Usage: ${0##*/} [-h] <REPOS_API_PATH>
 		
-		Creates a new virtual environment named <ENV_NAME> and installs the dependencies.
+		Clones all repos from the provided API path into the current working directory.
+		For example, REPOS_API_PATH can be orgs/<org-name>/repos
+		
+		See https://docs.github.com/en/rest/reference/repos#list-organization-repositories
 		
 		    -h          display this help and exit
 	EOF

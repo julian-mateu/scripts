@@ -34,10 +34,11 @@ parse_arguments() {
 
 usage() {
     cat <<-EOF >&2
-		Usage: ${0##*/} [-h]
-		Creates a new TO-DO file with today's date into YYYY-MM-DD.md.
+		Usage: ${0##*/} [-h] <NOTE_TITLE>
 		
-		-h          display this help and exit
+		Creates a new notes file with today's date into YYYY-MM-DD-<NOTE_TITLE>.md.
+		
+		    -h          display this help and exit
 	EOF
 }
 

@@ -1,0 +1,62 @@
+#!/bin/bash
+set -e -o pipefail
+
+main() {
+    parse_arguments "${@}"
+
+    # shellcheck disable=SC2034 # used in command passed to subshell
+    typeset -xf git_main_branch
+
+    # shellcheck disable=SC2016
+    find . -type d -depth 1 -print0 |
+        xargs -I '{}' -0 -P 20 sh -c 'cd $PWD/{} && git pull origin $(git_main_branch)'
+}
+
+git_main_branch() {
+    command git rev-parse --git-dir &>/dev/null || return
+    local branch
+    for branch in main trunk; do
+        if command git show-ref -q --verify refs/heads/${branch}; then
+            echo ${branch}
+            return
+        fi
+    done
+    echo master
+}
+
+parse_arguments() {
+    while getopts "h" o; do
+        case "${o}" in
+        h)
+            usage
+            exit 0
+            ;;
+        \? | *)
+            usage
+            exit 1
+            ;;
+        esac
+    done
+
+    shift $((OPTIND - 1))
+
+    if [[ "${#}" -ne 0 ]]; then
+        echo "Illegal number of parameters ${0}: got ${#} but expected none: ${*}" >&2
+        usage
+        exit 1
+    fi
+}
+
+usage() {
+    cat <<-EOF >&2
+		Usage: ${0##*/} [-h]
+		
+		Performs a git pull for the orign's main branch in all repos under the current working directory.
+		
+		    -h          display this help and exit
+	EOF
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "${@}"
+fi

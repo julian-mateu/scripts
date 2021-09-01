@@ -37,10 +37,11 @@ parse_arguments() {
 usage() {
     cat <<-EOF >&2
 		Usage: ${0##*/} [-hf]
+		
 		Setup the configuration files by creating symboling links.
 		
-		-h          display this help and exit
-		-f          force mode: this will overwrite existing symbolic links.
+		    -h          display this help and exit
+		    -f          force mode: this will overwrite existing symbolic links.
 	EOF
 }
 
