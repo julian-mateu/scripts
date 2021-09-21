@@ -1,0 +1,62 @@
+#!/bin/bash
+set -e -o pipefail
+
+main() {
+    parse_arguments "${@}"
+
+    local SOURCE_FILE=${1}
+
+    export -f get_200_pages
+    export -f get_page
+    parallel -P 200 get_200_pages {} < "${SOURCE_FILE}"
+}
+
+get_200_pages() {
+    local url="${1}"
+    get_page "${url}" | grep " : 2[0-9][0-9]$" | awk '{print $1}'
+}
+
+get_page() {
+    local url="${1}"
+    local response
+    response=$(curl -I -s -o /dev/null -w "%{http_code}" "${url}")
+    echo "${url} : ${response}"
+}
+
+parse_arguments() {
+    while getopts "h" o; do
+        case "${o}" in
+        h)
+            usage
+            exit 0
+            ;;
+        \? | *)
+            usage
+            exit 1
+            ;;
+        esac
+    done
+
+    shift $((OPTIND - 1))
+
+    if [[ "${#}" -ne 1 ]]; then
+        echo "Illegal number of parameters ${0}: got ${#} but expected exactly 1: ${*}" >&2
+        usage
+        exit 1
+    fi
+}
+
+usage() {
+    cat <<-EOF >&2
+		Usage: ${0##*/} [-h] <SOURCE_FILE>
+		
+		Filters valid URLs (return 200) from a <SOURCE_FILE>, and prints the valid ones to stdout.
+		NOTE: requires GNU Parallel installed (https://www.gnu.org/software/parallel/)
+		
+		    -h          display this help and exit
+	EOF
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "${@}"
+fi
