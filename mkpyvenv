@@ -12,7 +12,14 @@ main() {
     source "${VENV_NAME}/bin/activate"
 
     pip install --upgrade pip
-    pip install -e .
+
+    if [[ -e requirements.txt ]]; then
+        pip install -r requirements.txt
+    fi
+
+    if [[ -e setup.cfg || -e setup.py || -e pyproject.toml ]]; then
+        pip install -e .
+    fi
 }
 
 parse_arguments() {
