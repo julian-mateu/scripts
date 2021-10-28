@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Note: this script requires hub installed: https://hub.github.com/
+#  A personal access token should be added to ~/.config/hub
 set -e -o pipefail
 
 main() {
@@ -42,7 +43,18 @@ usage() {
 		
 		Clones all repos from the provided API path into the current working directory.
 		For example, REPOS_API_PATH can be orgs/<org-name>/repos
-		
+
+		Note: this script requires hub installed: https://hub.github.com/
+		  A personal access token should be added to ~/.config/hub
+
+		~/.config/hub file contents between "---"
+		---
+		github.com:
+		- user: <your-user>
+		  oauth_token: <your-personal-access-token>
+		  protocol: https
+		---
+
 		See https://docs.github.com/en/rest/reference/repos#list-organization-repositories
 		
 		    -h          display this help and exit
