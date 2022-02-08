@@ -5,6 +5,7 @@ TARGET_DIR="${HOME}/bin"
 
 main() {
     parse_arguments "${@}"
+    mkdir -p "${TARGET_DIR}"
     copy_files
 }
 
