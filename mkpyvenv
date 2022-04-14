@@ -4,8 +4,6 @@ set -e -o pipefail
 main() {
     parse_arguments "${@}"
 
-    VENV_NAME=${1:-env}
-
     python -m venv "${VENV_NAME}"
 
     # shellcheck disable=SC1091
@@ -13,21 +11,38 @@ main() {
 
     pip install --upgrade pip
 
-    if [[ -e requirements.txt ]]; then
-        pip install -r requirements.txt
-    fi
+    if [[ -z "${NO_DEPS}" ]]; then
 
-    if [[ -e setup.cfg || -e setup.py || -e pyproject.toml ]]; then
-        pip install -e .
+        if [[ -z "${NO_REQS}" ]]; then
+            if [[ "$(uname -m)" = "arm64" ]]; then
+                LDFLAGS="-L/opt/homebrew/Cellar/gettext/0.21/lib -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip install --no-cache -r requirements.txt
+            else
+                pip install -r requirements.txt
+            fi
+        fi
+
+        if [[ -e setup.cfg || -e setup.py || -e pyproject.toml ]]; then
+            if [[ "$(uname -m)" = "arm64" ]]; then
+                LDFLAGS="-L/opt/homebrew/Cellar/gettext/0.21/lib -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip install --no-cache -e .
+            else
+                pip install -e .
+            fi
+        fi
     fi
 }
 
 parse_arguments() {
-    while getopts "h" o; do
+    while getopts "hnr" o; do
         case "${o}" in
         h)
             usage
             exit 0
+            ;;
+        n)
+            NO_DEPS=true
+            ;;
+        r)
+            NO_REQS=true
             ;;
         \? | *)
             usage
@@ -43,15 +58,19 @@ parse_arguments() {
         usage
         exit 1
     fi
+
+    VENV_NAME=${1:-env}
 }
 
 usage() {
     cat <<-EOF >&2
-		Usage: ${0##*/} [-h] <ENV_NAME>
+		Usage: ${0##*/} [-hnr] <ENV_NAME>
 		
 		Creates a new virtual environment named <ENV_NAME> and installs the dependencies.
 		
 		    -h          display this help and exit
+		    -n          do not install dependencies
+		    -r          do not install requirements.txt file
 	EOF
 }
 
