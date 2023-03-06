@@ -7,15 +7,25 @@ main() {
     # shellcheck disable=SC2034 # used in command passed to subshell
     typeset -xf git_main_branch
 
+    echo "The following repositories are dirty:"
+    # shellcheck disable=SC2016 # command passed to xargs does not need expansion
+    find . -type d -depth 1 -print0 |
+        xargs -I '{}' -0 -P 20 sh -c 'cd $PWD/{} && git diff --quiet || echo " $(pwd)"'
+
+    echo ''
+    read -r -p 'Press enter to continue or CTRL-C to cancel'
+
     # shellcheck disable=SC2016
     find . -type d -depth 1 -print0 |
-        xargs -I '{}' -0 -P 20 sh -c 'cd $PWD/{} && git pull origin $(git_main_branch)'
+        xargs -I '{}' -0 -P 20 sh -c 'cd $PWD/{} && git pull origin $(git_main_branch) || echo "FAILED: $(pwd)"'
+    echo 'finished'
 }
 
+# Will prefer 'develop' if exists
 git_main_branch() {
     command git rev-parse --git-dir &>/dev/null || return
     local branch
-    for branch in main trunk; do
+    for branch in develop main trunk; do
         if command git show-ref -q --verify refs/heads/${branch}; then
             echo ${branch}
             return

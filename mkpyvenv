@@ -15,7 +15,7 @@ main() {
 
         if [[ -z "${NO_REQS}" ]]; then
             if [[ "$(uname -m)" = "arm64" ]]; then
-                LDFLAGS="-L/opt/homebrew/Cellar/gettext/0.21/lib -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip install --no-cache -r requirements.txt
+                LDFLAGS="-L/opt/homebrew/Cellar/gettext/0.21/lib -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -L/opt/homebrew/Cellar/re2/20220601/lib" pip install --no-cache -r requirements.txt
             else
                 pip install -r requirements.txt
             fi
@@ -23,7 +23,7 @@ main() {
 
         if [[ -e setup.cfg || -e setup.py || -e pyproject.toml ]]; then
             if [[ "$(uname -m)" = "arm64" ]]; then
-                LDFLAGS="-L/opt/homebrew/Cellar/gettext/0.21/lib -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip install --no-cache -e .
+                LDFLAGS="-L/opt/homebrew/Cellar/gettext/0.21/lib -I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib -L/opt/homebrew/Cellar/re2/20220601/lib" pip install --no-cache -e .
             else
                 pip install -e .
             fi
